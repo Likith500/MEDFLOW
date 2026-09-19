@@ -1,24 +1,11 @@
 import { useState } from "react";
+import { useHospital } from "../HospitalContext";
 
 function EmergencyRequests() {
+  const { emergencyRequests, addEmergencyRequest } = useHospital();
   const [showForm, setShowForm] = useState(false);
 
-  const [requests, setRequests] = useState([
-    {
-      resource: "ICU Beds",
-      quantity: 2,
-      department: "Emergency Department",
-      urgency: "Critical",
-      status: "Open"
-    },
-    {
-      resource: "O+ Blood",
-      quantity: 4,
-      department: "Blood Bank",
-      urgency: "High",
-      status: "Open"
-    }
-  ]);
+  const requests = emergencyRequests;
 
   const [form, setForm] = useState({
     resource: "ICU Beds",
@@ -37,14 +24,10 @@ function EmergencyRequests() {
   function createRequest(event) {
     event.preventDefault();
 
-    setRequests([
-      ...requests,
-      {
-        ...form,
-        quantity: Number(form.quantity),
-        status: "Open"
-      }
-    ]);
+    addEmergencyRequest({
+  ...form,
+  quantity: Number(form.quantity)
+});
 
     setShowForm(false);
   }
