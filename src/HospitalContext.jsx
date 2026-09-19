@@ -71,13 +71,14 @@ export function HospitalProvider({ children }) {
   };
 
   const value = {
-    surgeActive,
-    setSurgeActive,
-    emergencyRequests,
-    addEmergencyRequest,
-    alerts,
-    addAlert
-  };
+  surgeActive,
+  setSurgeActive,
+  emergencyRequests,
+  addEmergencyRequest,
+  alerts,
+  setAlerts,
+  addAlert
+};
 
   return (
     <HospitalContext.Provider value={value}>

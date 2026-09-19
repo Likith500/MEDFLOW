@@ -1,40 +1,7 @@
-import { useState } from "react";
+import { useHospital } from "../HospitalContext";
 
 function Alerts() {
-  const [alerts, setAlerts] = useState([
-    {
-      id: 1,
-      type: "critical",
-      title: "ICU Capacity Critical",
-      message: "ICU occupancy has reached 95%. Additional beds may be required.",
-      time: "2 min ago",
-      unread: true
-    },
-    {
-      id: 2,
-      type: "warning",
-      title: "O- Blood Supply Low",
-      message: "Blood Bank inventory is below the recommended emergency level.",
-      time: "8 min ago",
-      unread: true
-    },
-    {
-      id: 3,
-      type: "warning",
-      title: "Emergency Requests Pending",
-      message: "3 emergency resource requests are waiting for matching.",
-      time: "14 min ago",
-      unread: true
-    },
-    {
-      id: 4,
-      type: "success",
-      title: "Ventilator Request Matched",
-      message: "2 ventilators have been successfully matched to Emergency.",
-      time: "21 min ago",
-      unread: false
-    }
-  ]);
+  const { alerts, setAlerts } = useHospital();
 
   const markAllRead = () => {
     setAlerts(
