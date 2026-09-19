@@ -76,7 +76,7 @@ function MedflowLogo({ large = false }) {
 
 /* =========================================================
    SHARED SIDEBAR
-   =========================================================
+   ========================================================= */
 
 function Sidebar() {
   const { emergencyRequests, alerts, surgeActive } = useHospital();
