@@ -62,8 +62,8 @@ function ResourceMatching() {
 
   addAlert({
     type: "success",
-    title: "Resource Request Sent",
-    message: `Resource request sent to ${match.department}.`
+    title: "Resource Request Matched",
+    message: `${activeRequest.quantity} × ${activeRequest.resource} matched to ${match.department} for ${activeRequest.department}.`
   });
 };
 

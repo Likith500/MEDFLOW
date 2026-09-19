@@ -12,7 +12,9 @@ function CommandCenter() {
     { name: "Surgery", value: 60, status: "Moderate" }
   ];
 
-  const requests = emergencyRequests;
+  const requests = emergencyRequests.filter(
+  (request) => request.status === "Open"
+);
 
   const handleAction = (action) => {
     setActiveAction(action);
