@@ -260,47 +260,55 @@ export function HospitalProvider({ children }) {
       in_use: Number(changes.inUse)
     };
 
-    console.log("MEDFLOW: saving resource", {
+    console.log("MEDFLOW: updating resource", {
       resourceKey,
       dbChanges
     });
 
-    const { data, error } = await supabase
+    const { error: updateError } = await supabase
       .from("hospital_resources")
       .update(dbChanges)
+      .eq("resource_key", resourceKey);
+
+    if (updateError) {
+      console.error(
+        "MEDFLOW: resource UPDATE failed:",
+        JSON.stringify({
+          message: updateError.message,
+          details: updateError.details,
+          hint: updateError.hint,
+          code: updateError.code
+        })
+      );
+      return null;
+    }
+
+    const { data, error: readError } = await supabase
+      .from("hospital_resources")
+      .select("*")
       .eq("resource_key", resourceKey)
-      .select("*");
+      .single();
 
-    if (error) {
+    if (readError) {
       console.error(
-        "MEDFLOW: resource update failed",
-        {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        }
+        "MEDFLOW: resource read-back failed:",
+        JSON.stringify({
+          message: readError.message,
+          details: readError.details,
+          hint: readError.hint,
+          code: readError.code
+        })
       );
       return null;
     }
-
-    if (!data || data.length === 0) {
-      console.error(
-        "MEDFLOW: update affected 0 rows. Check resource_key and RLS policy.",
-        resourceKey
-      );
-      return null;
-    }
-
-    const row = data[0];
 
     const updatedResource = {
-      key: row.resource_key,
-      label: row.label,
-      available: row.available,
-      inUse: row.in_use,
-      status: row.status,
-      detail: row.detail
+      key: data.resource_key,
+      label: data.label,
+      available: data.available,
+      inUse: data.in_use,
+      status: data.status,
+      detail: data.detail
     };
 
     setResources((current) =>
@@ -312,7 +320,7 @@ export function HospitalProvider({ children }) {
     );
 
     console.log(
-      "MEDFLOW: resource saved successfully",
+      "MEDFLOW: resource saved successfully:",
       updatedResource
     );
 
