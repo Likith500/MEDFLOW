@@ -270,6 +270,196 @@ export function HospitalProvider({ children }) {
     );
   }
 
+  useEffect(() => {
+    const emergencyChannel = supabase
+      .channel("medflow-realtime-emergency")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "emergency_requests"
+        },
+        (payload) => {
+          if (payload.eventType === "INSERT") {
+            setEmergencyRequests((current) => {
+              const exists = current.some(
+                (request) => request.id === payload.new.id
+              );
+              return exists
+                ? current
+                : [payload.new, ...current];
+            });
+          }
+
+          if (payload.eventType === "UPDATE") {
+            setEmergencyRequests((current) =>
+              current.map((request) =>
+                request.id === payload.new.id
+                  ? payload.new
+                  : request
+              )
+            );
+          }
+
+          if (payload.eventType === "DELETE") {
+            setEmergencyRequests((current) =>
+              current.filter(
+                (request) => request.id !== payload.old.id
+              )
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    const alertsChannel = supabase
+      .channel("medflow-realtime-alerts")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "alerts"
+        },
+        (payload) => {
+          if (payload.eventType === "INSERT") {
+            setAlerts((current) => {
+              const exists = current.some(
+                (alert) => alert.id === payload.new.id
+              );
+              return exists
+                ? current
+                : [payload.new, ...current];
+            });
+          }
+
+          if (payload.eventType === "UPDATE") {
+            setAlerts((current) =>
+              current.map((alert) =>
+                alert.id === payload.new.id
+                  ? payload.new
+                  : alert
+              )
+            );
+          }
+
+          if (payload.eventType === "DELETE") {
+            setAlerts((current) =>
+              current.filter(
+                (alert) => alert.id !== payload.old.id
+              )
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    const departmentsChannel = supabase
+      .channel("medflow-realtime-departments")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "departments"
+        },
+        (payload) => {
+          const mapDepartment = (department) => ({
+            id: department.id,
+            name: department.name,
+            short: department.short_code,
+            status: department.status,
+            capacityTotal: department.capacity_total,
+            capacityOccupied: department.capacity_occupied,
+            patients: department.active_patients,
+            capacityUnit: department.capacity_unit
+          });
+
+          if (payload.eventType === "INSERT") {
+            setDepartments((current) => [
+              ...current,
+              mapDepartment(payload.new)
+            ]);
+          }
+
+          if (payload.eventType === "UPDATE") {
+            setDepartments((current) =>
+              current.map((department) =>
+                department.id === payload.new.id
+                  ? mapDepartment(payload.new)
+                  : department
+              )
+            );
+          }
+
+          if (payload.eventType === "DELETE") {
+            setDepartments((current) =>
+              current.filter(
+                (department) => department.id !== payload.old.id
+              )
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    const resourcesChannel = supabase
+      .channel("medflow-realtime-resources")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "hospital_resources"
+        },
+        (payload) => {
+          const mapResource = (resource) => ({
+            key: resource.resource_key,
+            label: resource.label,
+            available: resource.available,
+            inUse: resource.in_use,
+            status: resource.status,
+            detail: resource.detail
+          });
+
+          if (payload.eventType === "INSERT") {
+            setResources((current) => [
+              ...current,
+              mapResource(payload.new)
+            ]);
+          }
+
+          if (payload.eventType === "UPDATE") {
+            setResources((current) =>
+              current.map((resource) =>
+                resource.key === payload.new.resource_key
+                  ? mapResource(payload.new)
+                  : resource
+              )
+            );
+          }
+
+          if (payload.eventType === "DELETE") {
+            setResources((current) =>
+              current.filter(
+                (resource) =>
+                  resource.key !== payload.old.resource_key
+              )
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(emergencyChannel);
+      supabase.removeChannel(alertsChannel);
+      supabase.removeChannel(departmentsChannel);
+      supabase.removeChannel(resourcesChannel);
+    };
+  }, []);
+
   const value = {
     surgeActive,
     setSurgeActive,
