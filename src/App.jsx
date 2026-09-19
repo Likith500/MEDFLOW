@@ -96,7 +96,7 @@ function MedflowLogo({ large = false }) {
    ========================================================= */
 
 function Sidebar() {
-  const { emergencyRequests, alerts } = useHospital();
+  const { emergencyRequests, alerts, surgeActive } = useHospital();
 
   const openRequests = emergencyRequests.filter(
     (request) => request.status === "Open"
@@ -149,7 +149,9 @@ function Sidebar() {
   ];
 
   return (
-    <aside className="sidebar">
+    <aside
+      className={"sidebar " + (surgeActive ? "surge-sidebar" : "")}
+    >
       <div className="brand">
         <MedflowLogo />
 
@@ -206,8 +208,14 @@ function Sidebar() {
           <span className="system-dot" />
 
           <div>
-            <strong>System Online</strong>
-            <span>All services operational</span>
+            <strong>
+            {surgeActive ? "SURGE RESPONSE ACTIVE" : "System Online"}
+          </strong>
+            <span>
+              {surgeActive
+                ? "Hospital operating under escalation protocols"
+                : "All services operational"}
+            </span>
           </div>
         </div>
       </div>
@@ -220,8 +228,12 @@ function Sidebar() {
    ========================================================= */
 
 function Topbar() {
+  const { surgeActive } = useHospital();
+
   return (
-    <header className="topbar">
+    <header
+      className={"topbar " + (surgeActive ? "surge-topbar" : "")}
+    >
       <div className="search-box">
         <span>⌕</span>
         <input
@@ -232,14 +244,16 @@ function Topbar() {
       </div>
 
       <div className="topbar-right">
-        <div className="top-live">
+        <div className={"top-live " + (surgeActive ? "surge-live" : "")}>
           <span />
-          Live
+          {surgeActive ? "SURGE" : "Live"}
         </div>
 
         <div className="top-status">
           <small>HOSPITAL STATUS</small>
-          <strong>Operational</strong>
+          <strong>
+            {surgeActive ? "Surge Response" : "Operational"}
+          </strong>
         </div>
 
         <div className="date-block">
@@ -266,12 +280,27 @@ function PageFrame({
   action,
   children
 }) {
+  const { surgeActive } = useHospital();
+
   return (
-    <div className="app-shell">
+    <div className={"app-shell " + (surgeActive ? "surge-shell" : "")}>
       <Sidebar />
 
       <main className="main-content">
         <Topbar />
+
+        {surgeActive && (
+          <div className="global-surge-banner">
+            <span className="global-surge-dot" />
+            <strong>HOSPITAL SURGE MODE ACTIVE</strong>
+            <span>
+              Enhanced coordination protocols are in effect across monitored units.
+            </span>
+            <Link to="/surge-mode" className="global-surge-link">
+              View incident control →
+            </Link>
+          </div>
+        )}
 
         <div className="page-body">
           <section className="page-heading">
@@ -330,9 +359,16 @@ function Dashboard() {
       title="Hospital Dashboard"
       subtitle="Real-time resource coordination across the hospital."
       action={
-        <div className="heading-status">
+        <div
+          className={
+            "heading-status " +
+            (surgeActive ? "incident-heading-status" : "")
+          }
+        >
           <span />
-          System operational
+          {surgeActive
+            ? "Surge response active"
+            : "System operational"}
         </div>
       }
     >
