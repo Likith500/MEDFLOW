@@ -1544,8 +1544,23 @@ function SurgeMode() {
   const {
     surgeActive,
     setSurgeActive,
-    addAlert
+    addAlert,
+    departments,
+    resources,
+    emergencyRequests
   } = useHospital();
+
+  const criticalRequests = emergencyRequests.filter(
+    (request) => request.status === "Open" &&
+      request.urgency === "Critical"
+  ).length;
+
+  const availableBeds = resources.find(
+    (resource) => resource.key === "available_beds"
+  );
+  const responseTeams = resources.find(
+    (resource) => resource.key === "response_teams"
+  );
 
   function toggleSurge() {
     const next = !surgeActive;
@@ -1555,126 +1570,167 @@ function SurgeMode() {
     addAlert({
       type: next ? "critical" : "success",
       title: next
-        ? "Surge Mode Activated"
+        ? "SURGE RESPONSE ACTIVATED"
         : "Surge Mode Deactivated",
       message: next
-        ? "Hospital operations are now running under surge protocols."
+        ? "Hospital operations have entered coordinated surge protocols."
         : "Hospital operations have returned to standard capacity."
     });
   }
 
-  const readiness = [
-    {
-      title: "Emergency",
-      percentage: 92,
-      beds: "2 available",
-      status: "Critical",
-      type: "critical"
-    },
-    {
-      title: "ICU",
-      percentage: 80,
-      beds: "4 available",
-      status: "High",
-      type: "high"
-    },
-    {
-      title: "General Ward",
-      percentage: 43,
-      beds: "46 available",
-      status: "Stable",
-      type: "stable"
-    },
-    {
-      title: "Surgery",
-      percentage: 60,
-      beds: "12 available",
-      status: "Moderate",
-      type: "moderate"
-    }
-  ];
+  const readiness = departments.map((department) => ({
+    title: department.name,
+    percentage: Math.round(
+      (department.capacityOccupied /
+        department.capacityTotal) *
+        100
+    ),
+    available:
+      department.capacityTotal -
+      department.capacityOccupied,
+    unit: department.capacityUnit,
+    status: department.status,
+    type: department.status.toLowerCase()
+  }));
 
   return (
     <PageFrame
-      eyebrow="SURGE RESPONSE"
+      eyebrow="INCIDENT RESPONSE"
       title="Surge Mode"
-      subtitle="Activate coordinated hospital response when demand spikes."
+      subtitle="Hospital-wide escalation controls for periods of sustained capacity pressure."
       action={
         <div
-          className={`surge-status-badge ${
-            surgeActive ? "on" : "off"
-          }`}
+          className={
+            "surge-status-badge " +
+            (surgeActive ? "on" : "off")
+          }
         >
           <span />
           {surgeActive
-            ? "Surge active"
-            : "Standard operations"}
+            ? "INCIDENT ACTIVE"
+            : "STANDARD OPERATIONS"}
         </div>
       }
     >
       <section
-        className={`surge-control-panel ${
-          surgeActive ? "active" : ""
-        }`}
+        className={
+          "surge-incident-panel " +
+          (surgeActive ? "active" : "")
+        }
       >
-        <div className="surge-control-copy">
+        <div className="surge-incident-mark">
+          !
+        </div>
+
+        <div className="surge-incident-copy">
           <div className="eyebrow">
-            RESPONSE CONTROL
+            {surgeActive
+              ? "HIGH PRIORITY • RESPONSE IN PROGRESS"
+              : "ESCALATION CONTROL"}
           </div>
 
           <h2>
             {surgeActive
-              ? "Surge Mode is active"
-              : "Surge Mode is ready"}
+              ? "Hospital surge response is active"
+              : "Surge response is on standby"}
           </h2>
 
           <p>
             {surgeActive
-              ? "Priority resources are being coordinated across departments."
-              : "Activate when hospital demand requires expanded coordination."}
+              ? "Priority resources, staffing and transfer capacity should be coordinated across all monitored units."
+              : "Activate only when normal operating capacity is no longer sufficient for current hospital demand."}
           </p>
         </div>
 
         <button
-          className={`surge-toggle ${
-            surgeActive ? "active" : ""
-          }`}
+          className={
+            "surge-command-button " +
+            (surgeActive ? "active" : "")
+          }
           onClick={toggleSurge}
-          aria-label="Toggle surge mode"
         >
-          <span className="toggle-track">
-            <span className="toggle-knob" />
+          <span className="surge-command-kicker">
+            {surgeActive ? "RESPONSE CONTROL" : "EMERGENCY CONTROL"}
           </span>
-
           <strong>
-            {surgeActive ? "ACTIVE" : "OFF"}
+            {surgeActive
+              ? "DEACTIVATE SURGE"
+              : "ACTIVATE SURGE"}
           </strong>
+          <small>
+            {surgeActive
+              ? "Return to standard operations"
+              : "Escalate hospital coordination"}
+          </small>
         </button>
+      </section>
+
+      <section className="surge-live-strip">
+        <div>
+          <span className="surge-live-label">LIVE INCIDENT STATE</span>
+          <strong>
+            {surgeActive
+              ? "SURGE RESPONSE ACTIVE"
+              : "NO ACTIVE SURGE"}
+          </strong>
+        </div>
+
+        <div>
+          <span>Open critical requests</span>
+          <strong>{criticalRequests}</strong>
+        </div>
+
+        <div>
+          <span>Available beds</span>
+          <strong>{availableBeds?.available ?? 0}</strong>
+        </div>
+
+        <div>
+          <span>Response teams</span>
+          <strong>{responseTeams?.available ?? 7}</strong>
+        </div>
+
+        <div className="surge-live-time">
+          <span>Protocol</span>
+          <strong>
+            {surgeActive ? "Escalated" : "Standby"}
+          </strong>
+        </div>
       </section>
 
       <section className="surge-metric-grid">
         <div className="surge-metric">
           <span>Priority Units</span>
-          <strong>4</strong>
-          <small>Under enhanced monitoring</small>
+          <strong>
+            {departments.filter(
+              (department) =>
+                department.status === "Critical" ||
+                department.status === "High"
+            ).length}
+          </strong>
+          <small>High-utilization departments</small>
         </div>
 
         <div className="surge-metric">
           <span>Available Beds</span>
-          <strong>42</strong>
-          <small>Across hospital</small>
+          <strong>{availableBeds?.available ?? 0}</strong>
+          <small>Hospital-wide availability</small>
         </div>
 
         <div className="surge-metric">
-          <span>Response Teams</span>
-          <strong>7</strong>
-          <small>Ready for deployment</small>
+          <span>Open Requests</span>
+          <strong>
+            {emergencyRequests.filter(
+              (request) => request.status === "Open"
+            ).length}
+          </strong>
+          <small>Awaiting resource coordination</small>
         </div>
 
         <div className="surge-metric">
           <span>Critical Requests</span>
-          <strong>3</strong>
-          <small>Need immediate attention</small>
+          <strong>{criticalRequests}</strong>
+          <small>Immediate attention required</small>
         </div>
       </section>
 
@@ -1682,26 +1738,34 @@ function SurgeMode() {
         <div className="panel-heading">
           <div>
             <div className="eyebrow">
-              SURGE READINESS
+              INCIDENT READINESS
             </div>
-
-            <h2>Department capacity</h2>
-            <p>Live operational readiness.</p>
+            <h2>Department capacity pressure</h2>
+            <p>
+              Current occupancy used to determine response pressure.
+            </p>
           </div>
+
+          <span className="live-pill">
+            <span />
+            LIVE
+          </span>
         </div>
 
         <div className="readiness-grid">
           {readiness.map((department) => (
             <div
-              className="readiness-card"
+              className={
+                "readiness-card " +
+                (department.percentage >= 80
+                  ? "pressure"
+                  : "")
+              }
               key={department.title}
             >
               <div className="readiness-top">
                 <div>
-                  <strong>
-                    {department.title}
-                  </strong>
-
+                  <strong>{department.title}</strong>
                   <small>
                     {department.status}
                   </small>
@@ -1714,17 +1778,22 @@ function SurgeMode() {
 
               <div className="readiness-bar">
                 <div
-                  className={`readiness-fill ${department.type}`}
+                  className={
+                    "readiness-fill " +
+                    department.type
+                  }
                   style={{
-                    width: `${department.percentage}%`
+                    width:
+                      department.percentage + "%"
                   }}
                 />
               </div>
 
               <div className="readiness-footer">
-                <span>Occupancy</span>
+                <span>Available</span>
                 <strong>
-                  {department.beds}
+                  {department.available}{" "}
+                  {department.unit}
                 </strong>
               </div>
             </div>
@@ -1732,22 +1801,60 @@ function SurgeMode() {
         </div>
       </section>
 
-      <section className="protocol-panel">
-        <div className="protocol-icon">ϟ</div>
+      <section className="surge-protocol-panel">
+        <div className="surge-protocol-head">
+          <div>
+            <div className="eyebrow">
+              RESPONSE PROTOCOL
+            </div>
+            <h2>Escalation checklist</h2>
+          </div>
 
-        <div>
-          <strong>Surge protocol checklist</strong>
-
-          <p>
-            Confirm staffing coverage, reserve critical
-            resources and coordinate transfer capacity.
-          </p>
+          <span
+            className={
+              surgeActive
+                ? "protocol-state active"
+                : "protocol-state"
+            }
+          >
+            {surgeActive
+              ? "IN PROGRESS"
+              : "READY"}
+          </span>
         </div>
 
-        <div className="protocol-items">
-          <span className="complete">✓ Staffing</span>
-          <span className="complete">✓ Beds</span>
-          <span>○ Transport</span>
+        <div className="surge-protocol-steps">
+          <div className="surge-step done">
+            <span>01</span>
+            <div>
+              <strong>Staffing coverage</strong>
+              <small>Confirm priority unit coverage</small>
+            </div>
+          </div>
+
+          <div className="surge-step done">
+            <span>02</span>
+            <div>
+              <strong>Bed capacity</strong>
+              <small>Reserve available beds for escalation</small>
+            </div>
+          </div>
+
+          <div className="surge-step">
+            <span>03</span>
+            <div>
+              <strong>Transfer coordination</strong>
+              <small>Prepare transport and receiving capacity</small>
+            </div>
+          </div>
+
+          <div className="surge-step">
+            <span>04</span>
+            <div>
+              <strong>Operations broadcast</strong>
+              <small>Notify active hospital teams</small>
+            </div>
+          </div>
         </div>
       </section>
     </PageFrame>
