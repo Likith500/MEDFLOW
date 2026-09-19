@@ -295,42 +295,13 @@ function PageFrame({
    ========================================================= */
 
 function Dashboard() {
-  const { emergencyRequests } = useHospital();
+  const { emergencyRequests, departments } = useHospital();
 
   const openRequests = emergencyRequests.filter(
     (request) => request.status === "Open"
   );
 
-  const departments = [
-    {
-      name: "Emergency",
-      status: "Critical",
-      occupied: "23 / 25",
-      percentage: 92,
-      type: "critical"
-    },
-    {
-      name: "ICU",
-      status: "High",
-      occupied: "16 / 20",
-      percentage: 80,
-      type: "high"
-    },
-    {
-      name: "General Ward",
-      status: "Stable",
-      occupied: "34 / 80",
-      percentage: 43,
-      type: "stable"
-    },
-    {
-      name: "Surgery",
-      status: "Moderate",
-      occupied: "18 / 30",
-      percentage: 60,
-      type: "moderate"
-    }
-  ];
+  const visibleDepartments = departments.slice(0, 4);
 
   return (
     <PageFrame
@@ -423,14 +394,14 @@ function Dashboard() {
           </div>
 
           <div className="capacity-list">
-            {departments.map((department) => (
+            {visibleDepartments.map((department) => (
               <div
                 className="capacity-row"
                 key={department.name}
               >
                 <div className="capacity-name">
                   <span
-                    className={`capacity-dot ${department.type}`}
+                    className={"capacity-dot " + department.status.toLowerCase()}
                   />
 
                   <div>
@@ -446,20 +417,20 @@ function Dashboard() {
 
                 <div className="capacity-bar">
                   <div
-                    className={`capacity-fill ${department.type}`}
+                    className={"capacity-fill " + department.status.toLowerCase()}
                     style={{
-                      width: `${department.percentage}%`
+                      width: Math.round((department.capacityOccupied / department.capacityTotal) * 100) + "%"
                     }}
                   />
                 </div>
 
                 <div className="capacity-number">
                   <strong>
-                    {department.percentage}%
+                    {Math.round((department.capacityOccupied / department.capacityTotal) * 100)}%
                   </strong>
 
                   <small>
-                    {department.occupied}
+                    {department.capacityOccupied} / {department.capacityTotal}
                   </small>
                 </div>
               </div>
@@ -622,62 +593,18 @@ function Dashboard() {
    ========================================================= */
 
 function Departments() {
-  const departments = [
-    {
-      name: "Emergency",
-      short: "ER",
-      status: "Critical",
-      beds: "23 / 25",
-      percentage: 92,
-      available: "2 beds",
-      patients: 37
-    },
-    {
-      name: "ICU",
-      short: "ICU",
-      status: "High",
-      beds: "16 / 20",
-      percentage: 80,
-      available: "4 beds",
-      patients: 16
-    },
-    {
-      name: "General Ward",
-      short: "GW",
-      status: "Stable",
-      beds: "34 / 80",
-      percentage: 43,
-      available: "46 beds",
-      patients: 34
-    },
-    {
-      name: "Surgery",
-      short: "SU",
-      status: "Moderate",
-      beds: "18 / 30",
-      percentage: 60,
-      available: "12 beds",
-      patients: 18
-    },
-    {
-      name: "Radiology",
-      short: "RA",
-      status: "Stable",
-      beds: "5 / 12",
-      percentage: 42,
-      available: "7 rooms",
-      patients: 9
-    },
-    {
-      name: "Pediatrics",
-      short: "PD",
-      status: "Stable",
-      beds: "11 / 24",
-      percentage: 46,
-      available: "13 beds",
-      patients: 11
-    }
-  ];
+  const { departments } = useHospital();
+
+  const totalDepartments = departments.length;
+  const totalCapacity = departments.reduce(
+    (sum, department) => sum + department.capacityTotal,
+    0
+  );
+  const occupiedCapacity = departments.reduce(
+    (sum, department) => sum + department.capacityOccupied,
+    0
+  );
+  const availableCapacity = totalCapacity - occupiedCapacity;
 
   return (
     <PageFrame
@@ -686,98 +613,37 @@ function Departments() {
       subtitle="Monitor capacity, occupancy and readiness across hospital units."
     >
       <section className="summary-grid">
-        <div className="summary-card">
-          <span>Total Departments</span>
-          <strong>6</strong>
-          <small>Currently monitored</small>
-        </div>
-
-        <div className="summary-card">
-          <span>Total Beds</span>
-          <strong>191</strong>
-          <small>Across all units</small>
-        </div>
-
-        <div className="summary-card">
-          <span>Occupied</span>
-          <strong>117</strong>
-          <small>Current patients</small>
-        </div>
-
-        <div className="summary-card">
-          <span>Available</span>
-          <strong className="teal-number">
-            74
-          </strong>
-          <small>Ready for allocation</small>
-        </div>
+        <div className="summary-card"><span>Total Departments</span><strong>{totalDepartments}</strong><small>Currently monitored</small></div>
+        <div className="summary-card"><span>Total Capacity</span><strong>{totalCapacity}</strong><small>Across all units</small></div>
+        <div className="summary-card"><span>Occupied</span><strong>{occupiedCapacity}</strong><small>Current utilization</small></div>
+        <div className="summary-card"><span>Available</span><strong className="teal-number">{availableCapacity}</strong><small>Ready for allocation</small></div>
       </section>
 
       <section className="department-grid">
-        {departments.map((department) => (
-          <article
-            className="department-card"
-            key={department.name}
-          >
-            <div className="department-card-top">
-              <div className="department-symbol">
-                {department.short}
+        {departments.map((department) => {
+          const percentage = Math.round((department.capacityOccupied / department.capacityTotal) * 100);
+          const available = department.capacityTotal - department.capacityOccupied;
+
+          return (
+            <article className="department-card" key={department.id}>
+              <div className="department-card-top">
+                <div className="department-symbol">{department.short}</div>
+                <span className={"status-pill " + department.status.toLowerCase()}>{department.status}</span>
               </div>
-
-              <span
-                className={`status-pill ${department.status.toLowerCase()}`}
-              >
-                {department.status}
-              </span>
-            </div>
-
-            <h2>{department.name}</h2>
-
-            <div className="department-stat-line">
-              <span>Occupancy</span>
-              <strong>
-                {department.percentage}%
-              </strong>
-            </div>
-
-            <div className="big-capacity-bar">
-              <div
-                className={`big-capacity-fill ${
-                  department.status.toLowerCase()
-                }`}
-                style={{
-                  width: `${department.percentage}%`
-                }}
-              />
-            </div>
-
-            <div className="department-details">
-              <div>
-                <small>Occupied</small>
-                <strong>{department.beds}</strong>
+              <h2>{department.name}</h2>
+              <div className="department-stat-line"><span>Occupancy</span><strong>{percentage}%</strong></div>
+              <div className="big-capacity-bar">
+                <div className={"big-capacity-fill " + department.status.toLowerCase()} style={{ width: percentage + "%" }} />
               </div>
-
-              <div>
-                <small>Available</small>
-                <strong>
-                  {department.available}
-                </strong>
+              <div className="department-details">
+                <div><small>Occupied</small><strong>{department.capacityOccupied} / {department.capacityTotal}</strong></div>
+                <div><small>Available</small><strong>{available} {department.capacityUnit}</strong></div>
+                <div><small>Active</small><strong>{department.patients}</strong></div>
               </div>
-
-              <div>
-                <small>Active</small>
-                <strong>
-                  {department.patients}
-                </strong>
-              </div>
-            </div>
-
-            <button className="secondary-button">
-              View Department
-              <span>→</span>
-            </button>
-          </article>
-        ))}
+              <button className="secondary-button">View Department <span>→</span></button>
+            </article>
+          );
+        })}
       </section>
     </PageFrame>
   );
