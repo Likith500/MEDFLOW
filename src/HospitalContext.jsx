@@ -37,6 +37,15 @@ const initialDepartments = [
   { id: 6, name: "Pediatrics", short: "PD", status: "Stable", capacityTotal: 24, capacityOccupied: 11, patients: 11, capacityUnit: "beds" }
 ];
 
+
+const initialResources = [
+  { key: "available_beds", label: "Available Beds", available: 42, inUse: 0, status: "Normal", detail: "Across all departments" },
+  { key: "icu_beds", label: "ICU Beds", available: 8, inUse: 12, status: "Normal", detail: "Currently available" },
+  { key: "ventilators", label: "Ventilators", available: 17, inUse: 5, status: "Normal", detail: "5 currently in use" },
+  { key: "ambulances", label: "Ambulances", available: 4, inUse: 0, status: "Normal", detail: "Available for deployment" },
+  { key: "blood_bank", label: "Blood Bank", available: 0, inUse: 0, status: "Low", detail: "Emergency inventory level" }
+];
+
 const initialAlerts = [
   {
     id: 1,
@@ -65,6 +74,7 @@ export function HospitalProvider({ children }) {
   );
   const [alerts, setAlerts] = useState(initialAlerts);
   const [departments, setDepartments] = useState(initialDepartments);
+  const [resources, setResources] = useState(initialResources);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -75,7 +85,8 @@ export function HospitalProvider({ children }) {
         const [
           emergencyRequestsResult,
           alertsResult,
-          departmentsResult
+          departmentsResult,
+          resourcesResult
         ] = await Promise.all([
           supabase
             .from("emergency_requests")
@@ -87,6 +98,10 @@ export function HospitalProvider({ children }) {
             .order("created_at", { ascending: false }),
           supabase
             .from("departments")
+            .select("*")
+            .order("id", { ascending: true }),
+          supabase
+            .from("hospital_resources")
             .select("*")
             .order("id", { ascending: true })
         ]);
@@ -101,6 +116,10 @@ export function HospitalProvider({ children }) {
 
         if (departmentsResult.error) {
           throw departmentsResult.error;
+        }
+
+        if (resourcesResult.error) {
+          throw resourcesResult.error;
         }
 
         setEmergencyRequests(
@@ -118,6 +137,17 @@ export function HospitalProvider({ children }) {
             capacityOccupied: department.capacity_occupied,
             patients: department.active_patients,
             capacityUnit: department.capacity_unit
+          }))
+        );
+
+        setResources(
+          (resourcesResult.data || []).map((resource) => ({
+            key: resource.resource_key,
+            label: resource.label,
+            available: resource.available,
+            inUse: resource.in_use,
+            status: resource.status,
+            detail: resource.detail
           }))
         );
 
@@ -250,6 +280,7 @@ export function HospitalProvider({ children }) {
     setAlerts: setAlertsAndPersist,
     addAlert,
     departments,
+    resources,
     loading
   };
 
