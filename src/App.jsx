@@ -4,6 +4,8 @@ import Departments from "./pages/Departments";
 import EmergencyRequests from "./pages/EmergencyRequests";
 import ResourceMatching from "./pages/ResourceMatching";
 import SurgeMode from "./pages/SurgeMode";
+import Alerts from "./pages/Alerts";
+import CommandCenter from "./pages/CommandCenter";
 
 function App() {
   return (
@@ -30,6 +32,12 @@ function App() {
 </Link>
 <Link to="/surge-mode">
   🚨 Surge Mode
+</Link>
+<Link to="/alerts">
+  🔔 Live Alerts
+</Link>
+<Link to="/command-center">
+  🎛️ Command Center
 </Link>
 
   <button>Analytics</button>
@@ -241,6 +249,14 @@ function AppRouter() {
 <Route
   path="/surge-mode"
   element={<SurgeMode />}
+/>
+<Route
+  path="/alerts"
+  element={<Alerts />}
+/>
+<Route
+  path="/command-center"
+  element={<CommandCenter />}
 />
 
       </Routes>
