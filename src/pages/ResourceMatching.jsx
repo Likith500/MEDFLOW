@@ -1,7 +1,15 @@
 import { useState } from "react";
+import { useHospital } from "../HospitalContext";
 
 function ResourceMatching() {
+  const {
+  emergencyRequests,
+  addAlert,
+  matchEmergencyRequest
+} = useHospital();
+
   const [matched, setMatched] = useState(false);
+  const [requestSent, setRequestSent] = useState(false);
 
   const matches = [
     {
@@ -30,6 +38,35 @@ function ResourceMatching() {
     }
   ];
 
+  const activeRequest =
+    emergencyRequests.find((request) => request.status === "Open") ||
+    emergencyRequests[0];
+
+  const handleFindMatch = () => {
+    setMatched(true);
+
+    addAlert({
+      type: "success",
+      title: "Resource Match Found",
+      message:
+        "ICU Block B has been identified as the best available match for the active request."
+    });
+  };
+
+  const handleRequest = (match) => {
+  setRequestSent(true);
+
+  if (activeRequest) {
+    matchEmergencyRequest(activeRequest.id);
+  }
+
+  addAlert({
+    type: "success",
+    title: "Resource Request Sent",
+    message: `Resource request sent to ${match.department}.`
+  });
+};
+
   return (
     <div className="page">
 
@@ -50,7 +87,6 @@ function ResourceMatching() {
         </div>
       </div>
 
-
       {/* REQUEST */}
 
       <div className="matching-request">
@@ -67,11 +103,15 @@ function ResourceMatching() {
             </p>
 
             <h2>
-              2 × ICU Beds
+              {activeRequest
+                ? `${activeRequest.quantity} × ${activeRequest.resource}`
+                : "No active requests"}
             </h2>
 
             <p>
-              Emergency Department · Critical priority
+              {activeRequest
+                ? `${activeRequest.department} · ${activeRequest.urgency} priority`
+                : "All emergency requests have been handled"}
             </p>
           </div>
 
@@ -80,17 +120,16 @@ function ResourceMatching() {
         <div className="request-meta">
 
           <span className="status critical">
-            Critical
+            {activeRequest?.urgency || "None"}
           </span>
 
           <span>
-            Requested 2 min ago
+            {activeRequest ? "Active request" : "No request"}
           </span>
 
         </div>
 
       </div>
-
 
       {/* MATCH BUTTON */}
 
@@ -100,7 +139,8 @@ function ResourceMatching() {
 
           <button
             className="primary match-button"
-            onClick={() => setMatched(true)}
+            onClick={handleFindMatch}
+            disabled={!activeRequest}
           >
             🔎 Find Best Match
           </button>
@@ -114,7 +154,6 @@ function ResourceMatching() {
         )}
 
       </div>
-
 
       {/* RESULTS */}
 
@@ -138,7 +177,6 @@ function ResourceMatching() {
 
         </div>
 
-
         {matches.map((match, index) => (
 
           <div
@@ -154,7 +192,6 @@ function ResourceMatching() {
               🏥
             </div>
 
-
             <div className="match-main">
 
               <strong>
@@ -166,7 +203,6 @@ function ResourceMatching() {
               </p>
 
             </div>
-
 
             <div className="match-detail">
 
@@ -180,7 +216,6 @@ function ResourceMatching() {
 
             </div>
 
-
             <div className="match-detail">
 
               <span>
@@ -192,7 +227,6 @@ function ResourceMatching() {
               </strong>
 
             </div>
-
 
             <div className="match-score">
 
@@ -206,7 +240,6 @@ function ResourceMatching() {
 
             </div>
 
-
             <span
               className={`status ${
                 match.status === "Available"
@@ -219,16 +252,14 @@ function ResourceMatching() {
               {match.status}
             </span>
 
-
             {match.status === "Available" && (
 
               <button
                 className="accept-button"
-                onClick={() => alert(
-                  `Resource request sent to ${match.department}`
-                )}
+                onClick={() => handleRequest(match)}
+                disabled={requestSent}
               >
-                Request
+                {requestSent ? "✓ Sent" : "Request"}
               </button>
 
             )}

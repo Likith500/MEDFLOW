@@ -55,6 +55,15 @@ export function HospitalProvider({ children }) {
       newRequest
     ]);
   };
+  const matchEmergencyRequest = (requestId) => {
+  setEmergencyRequests((current) =>
+    current.map((request) =>
+      request.id === requestId
+        ? { ...request, status: "Matched" }
+        : request
+    )
+  );
+};
 
   const addAlert = (alert) => {
     const newAlert = {
@@ -75,6 +84,7 @@ export function HospitalProvider({ children }) {
   setSurgeActive,
   emergencyRequests,
   addEmergencyRequest,
+  matchEmergencyRequest,
   alerts,
   setAlerts,
   addAlert

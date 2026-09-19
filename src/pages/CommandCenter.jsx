@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useHospital } from "../HospitalContext";
 
 function CommandCenter() {
-      const { surgeActive, emergencyRequests } = useHospital();
+  const { surgeActive, emergencyRequests } = useHospital();
   const [activeAction, setActiveAction] = useState("");
 
   const departments = [
@@ -33,13 +33,20 @@ function CommandCenter() {
           </p>
         </div>
 
-        <div className={surgeActive ? "command-live surge-live" : "command-live"}>
-  <span></span>
-  {surgeActive ? "SURGE ACTIVE" : "LIVE MONITORING"}
-</div>
+        <div
+          className={
+            surgeActive
+              ? "command-live surge-live"
+              : "command-live"
+          }
+        >
+          <span></span>
+          {surgeActive ? "SURGE ACTIVE" : "LIVE MONITORING"}
+        </div>
       </div>
 
       <div className="command-metrics">
+
         <div className="command-metric">
           <span>Available Beds</span>
           <strong>42</strong>
@@ -60,12 +67,14 @@ function CommandCenter() {
 
         <div className="command-metric">
           <span>Open Requests</span>
-          <strong>3</strong>
+          <strong>{requests.length}</strong>
           <p>Require attention</p>
         </div>
+
       </div>
 
       <div className="command-grid">
+
         <div className="command-panel">
           <div className="command-panel-header">
             <div>
@@ -79,9 +88,13 @@ function CommandCenter() {
           </div>
 
           {departments.map((department) => (
-            <div className="command-department" key={department.name}>
+            <div
+              className="command-department"
+              key={department.name}
+            >
               <div className="command-department-top">
                 <strong>{department.name}</strong>
+
                 <span
                   className={
                     department.status === "Critical"
@@ -100,7 +113,9 @@ function CommandCenter() {
               <div className="command-bar">
                 <div
                   className="command-bar-fill"
-                  style={{ width: `${department.value}%` }}
+                  style={{
+                    width: `${department.value}%`
+                  }}
                 ></div>
               </div>
 
@@ -112,6 +127,7 @@ function CommandCenter() {
         </div>
 
         <div className="command-panel">
+
           <div className="command-panel-header">
             <div>
               <p className="small-title">ATTENTION REQUIRED</p>
@@ -119,20 +135,29 @@ function CommandCenter() {
             </div>
 
             <span className="request-count">
-  {requests.length} OPEN
-</span>
+              {requests.length} OPEN
+            </span>
           </div>
 
           <div className="command-requests">
-            {requests.map((request, index) => (
-              <div className="command-request" key={index}>
-                <div className="request-icon">!</div>
+
+            {requests.map((request) => (
+              <div
+                className="command-request"
+                key={request.id}
+              >
+                <div className="request-icon">
+                  !
+                </div>
 
                 <div className="request-info">
                   <strong>
                     {request.quantity} × {request.resource}
                   </strong>
-                  <span>{request.department}</span>
+
+                  <span>
+                    {request.department}
+                  </span>
                 </div>
 
                 <span
@@ -146,6 +171,7 @@ function CommandCenter() {
                 </span>
               </div>
             ))}
+
           </div>
 
           <button
@@ -154,16 +180,20 @@ function CommandCenter() {
           >
             Find Resource Matches
           </button>
+
         </div>
+
       </div>
 
       <div className="command-actions">
+
         <div>
           <p className="small-title">QUICK ACTIONS</p>
           <h2>Operations</h2>
         </div>
 
         <div className="action-buttons">
+
           <button onClick={() => handleAction("surge")}>
             🚨 Activate Surge Mode
           </button>
@@ -175,11 +205,14 @@ function CommandCenter() {
           <button onClick={() => handleAction("alerts")}>
             🔔 View Live Alerts
           </button>
+
         </div>
+
       </div>
 
       {activeAction && (
         <div className="command-toast">
+
           {activeAction === "surge" &&
             "Surge Mode action selected"}
 
@@ -194,8 +227,10 @@ function CommandCenter() {
 
           {activeAction === "departments" &&
             "Department overview selected"}
+
         </div>
       )}
+
     </div>
   );
 }

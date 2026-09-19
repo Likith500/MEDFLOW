@@ -179,7 +179,7 @@ function EmergencyRequests() {
 
         {requests.map((request, index) => (
 
-          <div className="full-request" key={index}>
+          <div className="full-request" key={request.id}>
 
             <div className="request-icon danger-bg">
               !
