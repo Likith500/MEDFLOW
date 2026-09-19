@@ -1,5 +1,4 @@
 import "./App.css";
-import medflowSymbol from "./assets/medflow-symbol.png";
 import { useState } from "react";
 import {
   BrowserRouter,
@@ -18,21 +17,67 @@ import { useHospital } from "./HospitalContext";
 
 function MedflowLogo({ large = false }) {
   return (
-    <img
-      className={"medflow-logo " + (large ? "large" : "")}
-      src={medflowSymbol}
-      alt="MEDFLOW"
-    />
+    <svg
+      className={`medflow-logo ${large ? "large" : ""}`}
+      viewBox="0 0 64 64"
+      aria-label="MEDFLOW"
+      role="img"
+    >
+      <path
+        d="M11 15
+           C11 10.6 14.6 7 19 7
+           H31
+           C35.4 7 39 10.6 39 15
+           V23
+           C39 25.8 36.8 28 34 28
+           H29
+           C26.2 28 24 30.2 24 33
+           V39
+           H15
+           C10.6 39 7 35.4 7 31
+           V23
+           C7 18.6 10.6 15 15 15
+           Z"
+        fill="#238BE0"
+      />
+
+      <path
+        d="M53 49
+           C53 53.4 49.4 57 45 57
+           H33
+           C28.6 57 25 53.4 25 49
+           V41
+           C25 38.2 27.2 36 30 36
+           H35
+           C37.8 36 40 33.8 40 31
+           V25
+           H49
+           C53.4 25 57 28.6 57 33
+           V41
+           C57 45.4 53.4 49 49 49
+           Z"
+        fill="#19B39D"
+      />
+
+      <path
+        d="M14 37
+           C22 37 24 34 27 29
+           C30 24 34 20 40 20
+           C45 20 49 23 51 27"
+        fill="none"
+        stroke="white"
+        strokeWidth="7"
+        strokeLinecap="round"
+      />
+    </svg>
   );
 }
 
 /* =========================================================
    SHARED SIDEBAR
-   =========================================================
+   ========================================================= */
 
-/
 
-function Sidebar() {
   const { emergencyRequests, alerts, surgeActive } = useHospital();
 
   const openRequests = emergencyRequests.filter(
