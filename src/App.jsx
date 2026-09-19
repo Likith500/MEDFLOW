@@ -1053,70 +1053,82 @@ function ResourceMatching() {
     matchEmergencyRequest
   } = useHospital();
 
-  const [matched, setMatched] =
-    useState(false);
+  const openRequests = emergencyRequests.filter(
+    (request) => request.status === "Open"
+  );
 
-  const [requestSent, setRequestSent] =
-    useState(false);
+  const [selectedRequestId, setSelectedRequestId] =
+    useState(null);
+  const [matched, setMatched] = useState(false);
+  const [requestSent, setRequestSent] = useState(false);
 
   const activeRequest =
-    emergencyRequests.find(
-      (request) => request.status === "Open"
-    ) || emergencyRequests[0];
+    openRequests.find(
+      (request) => request.id === selectedRequestId
+    ) || openRequests[0] || null;
 
-  const matches = [
-    {
-      department: "ICU",
-      resource: activeRequest?.resource || "ICU Beds",
-      available: 8,
-      distance: "0.2 km",
-      score: 98,
-      icon: "ICU"
-    },
-    {
-      department: "General Ward",
-      resource:
-        activeRequest?.resource || "General Beds",
-      available: 12,
-      distance: "0.5 km",
-      score: 91,
-      icon: "GW"
-    },
-    {
-      department: "Surgery",
-      resource:
-        activeRequest?.resource || "Ventilator",
-      available: 4,
-      distance: "0.8 km",
-      score: 84,
-      icon: "SU"
-    }
-  ];
+  function selectRequest(requestId) {
+    setSelectedRequestId(requestId);
+    setMatched(false);
+    setRequestSent(false);
+  }
+
+  const matches = activeRequest
+    ? [
+        {
+          department: "ICU",
+          resource: activeRequest.resource,
+          available: 8,
+          distance: "0.2 km",
+          score: 98,
+          icon: "ICU"
+        },
+        {
+          department: "General Ward",
+          resource: activeRequest.resource,
+          available: 12,
+          distance: "0.5 km",
+          score: 91,
+          icon: "GW"
+        },
+        {
+          department: "Surgery",
+          resource: activeRequest.resource,
+          available: 4,
+          distance: "0.8 km",
+          score: 84,
+          icon: "SU"
+        }
+      ]
+    : [];
 
   function handleFindMatch() {
+    if (!activeRequest) {
+      return;
+    }
+
     setMatched(true);
 
     addAlert({
       type: "success",
       title: "Resource Match Found",
       message:
-        "MEDFLOW identified available resources across hospital departments."
+        `MEDFLOW identified available resources for ${activeRequest.quantity} × ${activeRequest.resource}.`
     });
   }
 
   function handleRequest(match) {
-    setRequestSent(true);
-
-    if (activeRequest?.id) {
-      matchEmergencyRequest(activeRequest.id);
+    if (!activeRequest) {
+      return;
     }
+
+    setRequestSent(true);
+    matchEmergencyRequest(activeRequest.id);
 
     addAlert({
       type: "success",
       title: "Resource Request Matched",
-      message: `${activeRequest?.quantity || 1} × ${
-        activeRequest?.resource || "resource"
-      } matched to ${match.department}.`
+      message: `${activeRequest.quantity} × ${activeRequest.resource} matched to ${match.department}.`
     });
   }
 
@@ -1126,159 +1138,180 @@ function ResourceMatching() {
       title="Resource Matching"
       subtitle="Find the closest available resources for open hospital requests."
     >
-      <section className="matching-request-card">
-        <div className="matching-request-icon">
-          ↗
-        </div>
-
-        <div className="matching-request-main">
-          <span className="eyebrow">
-            ACTIVE REQUEST
-          </span>
-
-          <h2>
-            {activeRequest?.quantity || 1} ×{" "}
-            {activeRequest?.resource || "ICU Beds"}
-          </h2>
-
-          <p>
-            {activeRequest?.department ||
-              "Emergency"}{" "}
-            •{" "}
-            {activeRequest?.urgency ||
-              "Critical"}{" "}
-            priority
-          </p>
-        </div>
-
-        <div className="request-state-box">
-          <small>REQUEST STATUS</small>
-          <strong>
-            {requestSent
-              ? "Matched"
-              : "Awaiting match"}
-          </strong>
-        </div>
-      </section>
-
-      <section className="match-control-panel">
-        <div>
-          <div className="eyebrow">
-            MATCH ENGINE
-          </div>
-
-          <h2>
-            Find compatible resources
-          </h2>
-
-          <p>
-            MEDFLOW checks availability, department capacity
-            and proximity.
-          </p>
-        </div>
-
-        <button
-          className="primary-button large"
-          onClick={handleFindMatch}
-        >
-          {matched
-            ? "Matches Updated"
-            : "Find Resource Matches"}
-          <span>↗</span>
-        </button>
-      </section>
-
-      {requestSent && (
-        <div className="success-banner">
-          <div className="success-banner-icon">
-            ✓
-          </div>
-
-          <div>
-            <strong>
-              Resource request successfully matched
-            </strong>
-
-            <span>
-              The selected department has been notified.
-            </span>
-          </div>
-        </div>
-      )}
-
-      <section className="matches-panel">
+      <section className="matching-queue-panel">
         <div className="panel-heading">
           <div>
-            <div className="eyebrow">
-              AVAILABLE RESOURCES
-            </div>
-
-            <h2>Recommended Matches</h2>
-
-            <p>
-              Ranked by availability and location.
-            </p>
+            <div className="eyebrow">OPEN REQUEST QUEUE</div>
+            <h2>Requests awaiting resources</h2>
+            <p>Select a request to run the match engine.</p>
           </div>
 
           <span className="match-count">
-            {matched ? matches.length : "—"}
+            {openRequests.length}
           </span>
         </div>
 
-        <div className="match-list">
-          {matches.map((match, index) => (
-            <div
-              key={match.department}
-              className={`match-card ${
-                index === 0 ? "best-match" : ""
-              }`}
-            >
-              <div className="match-rank">
-                {String(index + 1).padStart(2, "0")}
-              </div>
-
-              <div className="match-icon">
-                {match.icon}
-              </div>
-
-              <div className="match-main">
-                <strong>{match.department}</strong>
-
-                <p>{match.resource}</p>
-              </div>
-
-              <div className="match-detail">
-                <small>Available</small>
-                <strong>{match.available}</strong>
-              </div>
-
-              <div className="match-detail">
-                <small>Distance</small>
-                <strong>{match.distance}</strong>
-              </div>
-
-              <div className="match-score">
-                <small>Match</small>
-                <strong>
-                  {match.score}%
-                </strong>
-              </div>
-
+        {openRequests.length === 0 ? (
+          <div className="empty-state matching-empty">
+            <span>✓</span>
+            <strong>No open requests</strong>
+            <small>Create an emergency request before matching resources.</small>
+          </div>
+        ) : (
+          <div className="matching-queue-list">
+            {openRequests.map((request) => (
               <button
-                className="secondary-button compact"
-                onClick={() =>
-                  handleRequest(match)
+                type="button"
+                key={request.id}
+                className={
+                  "matching-queue-item " +
+                  (activeRequest?.id === request.id ? "selected" : "")
                 }
-                disabled={requestSent}
+                onClick={() => selectRequest(request.id)}
               >
-                {requestSent
-                  ? "Matched"
-                  : "Request"}
+                <span className="matching-queue-icon">!</span>
+
+                <span className="matching-queue-copy">
+                  <strong>
+                    {request.quantity} × {request.resource}
+                  </strong>
+                  <small>{request.department}</small>
+                </span>
+
+                <span
+                  className={`priority-pill ${
+                    request.urgency?.toLowerCase() || "normal"
+                  }`}
+                >
+                  {request.urgency}
+                </span>
+
+                <span className="matching-queue-arrow">→</span>
               </button>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
+
+      {activeRequest && (
+        <>
+          <section className="matching-request-card">
+            <div className="matching-request-icon">
+              ↗
+            </div>
+
+            <div className="matching-request-main">
+              <span className="eyebrow">ACTIVE REQUEST</span>
+              <h2>
+                {activeRequest.quantity} × {activeRequest.resource}
+              </h2>
+              <p>
+                {activeRequest.department} • {activeRequest.urgency} priority
+              </p>
+            </div>
+
+            <div className="request-state-box">
+              <small>REQUEST STATUS</small>
+              <strong>
+                {requestSent ? "Matched" : "Awaiting match"}
+              </strong>
+            </div>
+          </section>
+
+          <section className="match-control-panel">
+            <div>
+              <div className="eyebrow">MATCH ENGINE</div>
+              <h2>Find compatible resources</h2>
+              <p>
+                MEDFLOW checks availability, department capacity and proximity.
+              </p>
+            </div>
+
+            <button
+              className="primary-button large"
+              onClick={handleFindMatch}
+            >
+              {matched ? "Matches Updated" : "Find Resource Matches"}
+              <span>↗</span>
+            </button>
+          </section>
+
+          {requestSent && (
+            <div className="success-banner">
+              <div className="success-banner-icon">✓</div>
+              <div>
+                <strong>Resource request successfully matched</strong>
+                <span>The selected department has been notified.</span>
+              </div>
+            </div>
+          )}
+
+          <section className="matches-panel">
+            <div className="panel-heading">
+              <div>
+                <div className="eyebrow">AVAILABLE RESOURCES</div>
+                <h2>Recommended Matches</h2>
+                <p>Ranked by availability and location.</p>
+              </div>
+
+              <span className="match-count">
+                {matched ? matches.length : "—"}
+              </span>
+            </div>
+
+            <div className="match-list">
+              {matched ? (
+                matches.map((match, index) => (
+                  <div
+                    key={match.department}
+                    className={`match-card ${
+                      index === 0 ? "best-match" : ""
+                    }`}
+                  >
+                    <div className="match-rank">
+                      {String(index + 1).padStart(2, "0")}
+                    </div>
+
+                    <div className="match-icon">{match.icon}</div>
+
+                    <div className="match-main">
+                      <strong>{match.department}</strong>
+                      <p>{match.resource}</p>
+                    </div>
+
+                    <div className="match-detail">
+                      <small>Available</small>
+                      <strong>{match.available}</strong>
+                    </div>
+
+                    <div className="match-detail">
+                      <small>Distance</small>
+                      <strong>{match.distance}</strong>
+                    </div>
+
+                    <div className="match-score">
+                      <small>Match</small>
+                      <strong>{match.score}%</strong>
+                    </div>
+
+                    <button
+                      className="secondary-button compact"
+                      onClick={() => handleRequest(match)}
+                      disabled={requestSent}
+                    >
+                      {requestSent ? "Matched" : "Request"}
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <div className="empty-table matching-placeholder">
+                  Click “Find Resource Matches” to generate recommendations.
+                </div>
+              )}
+            </div>
+          </section>
+        </>
+      )}
     </PageFrame>
   );
 }
