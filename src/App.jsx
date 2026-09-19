@@ -359,7 +359,7 @@ function Dashboard() {
           <div className="metric-content">
             <span>ICU Beds</span>
             <strong>{icuBeds?.available ?? 0}</strong>
-            <small>Currently available</small>
+            <small>{icuBeds?.inUse ?? 0} currently occupied</small>
           </div>
 
           <span className="metric-arrow">→</span>
@@ -373,7 +373,7 @@ function Dashboard() {
           <div className="metric-content">
             <span>Ventilators</span>
             <strong>{ventilators?.available ?? 0}</strong>
-            <small>{ventilators?.detail ?? "Currently tracked"}</small>
+            <small>{ventilators?.inUse ?? 0} currently in use</small>
           </div>
 
           <span className="metric-arrow">→</span>
