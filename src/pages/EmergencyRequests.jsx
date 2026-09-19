@@ -2,7 +2,11 @@ import { useState } from "react";
 import { useHospital } from "../HospitalContext";
 
 function EmergencyRequests() {
-  const { emergencyRequests, addEmergencyRequest } = useHospital();
+  const {
+  emergencyRequests,
+  addEmergencyRequest,
+  addAlert
+} = useHospital();;
   const [showForm, setShowForm] = useState(false);
 
   const requests = emergencyRequests;
@@ -22,15 +26,23 @@ function EmergencyRequests() {
   }
 
   function createRequest(event) {
-    event.preventDefault();
+  event.preventDefault();
 
-    addEmergencyRequest({
-  ...form,
-  quantity: Number(form.quantity)
-});
+  const newRequest = {
+    ...form,
+    quantity: Number(form.quantity)
+  };
 
-    setShowForm(false);
-  }
+  addEmergencyRequest(newRequest);
+
+  addAlert({
+    type: form.urgency === "Critical" ? "critical" : "warning",
+    title: "New Emergency Request",
+    message: `${form.department} requested ${form.quantity} × ${form.resource}.`,
+  });
+
+  setShowForm(false);
+}
 
   return (
     <div className="page">

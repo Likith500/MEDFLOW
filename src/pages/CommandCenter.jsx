@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useHospital } from "../HospitalContext";
 
 function CommandCenter() {
-      const { surgeActive } = useHospital();
+      const { surgeActive, emergencyRequests } = useHospital();
   const [activeAction, setActiveAction] = useState("");
 
   const departments = [
@@ -12,26 +12,7 @@ function CommandCenter() {
     { name: "Surgery", value: 60, status: "Moderate" }
   ];
 
-  const requests = [
-    {
-      resource: "ICU Beds",
-      quantity: 2,
-      department: "Emergency",
-      urgency: "Critical"
-    },
-    {
-      resource: "O+ Blood",
-      quantity: 4,
-      department: "Blood Bank",
-      urgency: "High"
-    },
-    {
-      resource: "Ventilators",
-      quantity: 2,
-      department: "Emergency",
-      urgency: "High"
-    }
-  ];
+  const requests = emergencyRequests;
 
   const handleAction = (action) => {
     setActiveAction(action);
@@ -137,7 +118,9 @@ function CommandCenter() {
               <h2>Emergency Requests</h2>
             </div>
 
-            <span className="request-count">3 OPEN</span>
+            <span className="request-count">
+  {requests.length} OPEN
+</span>
           </div>
 
           <div className="command-requests">
