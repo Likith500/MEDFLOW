@@ -2976,3 +2976,140 @@ a {
     margin-left: 16px;
   }
 }
+
+
+/* =========================================================
+   GLOBAL SEARCH
+   ========================================================= */
+
+.search-area {
+  position: relative;
+  width: min(470px, 48%);
+}
+
+.search-area .search-box {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.search-box-focused {
+  border-color: #9fc9e7;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(35, 139, 224, 0.08);
+}
+
+.search-results {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  overflow: hidden;
+  border: 1px solid #dfe8ee;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 16px 35px rgba(25, 51, 73, 0.14);
+}
+
+.search-result {
+  min-height: 58px;
+  padding: 10px 12px;
+  display: grid;
+  grid-template-columns: 30px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid #edf2f5;
+}
+
+.search-result:last-child {
+  border-bottom: 0;
+}
+
+.search-result:hover {
+  background: #f6fbff;
+}
+
+.search-result-type {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  background: #edf6fc;
+  color: #238be0;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.search-result-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.search-result-copy strong {
+  overflow: hidden;
+  color: #27455d;
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-result-copy small {
+  overflow: hidden;
+  color: #92a4b1;
+  font-size: 6.5px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-result-label {
+  padding: 4px 6px;
+  border-radius: 4px;
+  background: #f2f6f8;
+  color: #7790a1;
+  font-size: 6px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.search-no-results {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.search-no-results strong {
+  color: #304c61;
+  font-size: 9px;
+}
+
+.search-no-results span {
+  color: #91a3b0;
+  font-size: 7px;
+}
+
+@media (max-width: 900px) {
+  .search-area {
+    width: 100%;
+    max-width: 420px;
+  }
+}
+
+@media (max-width: 650px) {
+  .search-area {
+    width: min(100%, 260px);
+  }
+
+  .topbar {
+    gap: 10px;
+  }
+
+  .topbar-right .top-status,
+  .topbar-right .date-block {
+    display: none;
+  }
+}
