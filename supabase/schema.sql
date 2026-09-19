@@ -203,3 +203,48 @@ create policy "Demo users can read hospital resources"
   for select
   to anon
   using (true);
+
+
+-- Enable Supabase Realtime for MEDFLOW operational tables.
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_publication_tables
+    where pubname = 'supabase_realtime'
+      and schemaname = 'public'
+      and tablename = 'emergency_requests'
+  ) then
+    alter publication supabase_realtime add table public.emergency_requests;
+  end if;
+
+  if not exists (
+    select 1
+    from pg_publication_tables
+    where pubname = 'supabase_realtime'
+      and schemaname = 'public'
+      and tablename = 'alerts'
+  ) then
+    alter publication supabase_realtime add table public.alerts;
+  end if;
+
+  if not exists (
+    select 1
+    from pg_publication_tables
+    where pubname = 'supabase_realtime'
+      and schemaname = 'public'
+      and tablename = 'departments'
+  ) then
+    alter publication supabase_realtime add table public.departments;
+  end if;
+
+  if not exists (
+    select 1
+    from pg_publication_tables
+    where pubname = 'supabase_realtime'
+      and schemaname = 'public'
+      and tablename = 'hospital_resources'
+  ) then
+    alter publication supabase_realtime add table public.hospital_resources;
+  end if;
+end $$;
