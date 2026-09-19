@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useHospital } from "../HospitalContext";
 
 function SurgeMode() {
-  const [surgeActive, setSurgeActive] = useState(false);
+  const { surgeActive, setSurgeActive } = useHospital();
 
   const departments = [
     {

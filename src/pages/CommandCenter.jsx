@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useHospital } from "../HospitalContext";
 
 function CommandCenter() {
+      const { surgeActive } = useHospital();
   const [activeAction, setActiveAction] = useState("");
 
   const departments = [
@@ -50,10 +52,10 @@ function CommandCenter() {
           </p>
         </div>
 
-        <div className="command-live">
-          <span></span>
-          LIVE MONITORING
-        </div>
+        <div className={surgeActive ? "command-live surge-live" : "command-live"}>
+  <span></span>
+  {surgeActive ? "SURGE ACTIVE" : "LIVE MONITORING"}
+</div>
       </div>
 
       <div className="command-metrics">
