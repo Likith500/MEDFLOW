@@ -127,6 +127,11 @@ function Sidebar() {
       icon: "↗"
     },
     {
+      to: "/resource-management",
+      label: "Resource Management",
+      icon: "▤"
+    },
+    {
       to: "/surge-mode",
       label: "Surge Mode",
       icon: "ϟ"
@@ -1259,6 +1264,226 @@ function ResourceMatching() {
 }
 
 /* =========================================================
+   RESOURCE MANAGEMENT
+   ========================================================= */
+
+function ResourceManagement() {
+  const { resources, updateResource, addAlert } =
+    useHospital();
+
+  const [drafts, setDrafts] = useState(() =>
+    resources.reduce((acc, resource) => {
+      acc[resource.key] = {
+        available: resource.available,
+        inUse: resource.inUse
+      };
+      return acc;
+    }, {})
+  );
+
+  const [savingKey, setSavingKey] = useState(null);
+  const [savedKey, setSavedKey] = useState(null);
+
+  function syncDrafts(nextResources) {
+    setDrafts(
+      nextResources.reduce((acc, resource) => {
+        acc[resource.key] = {
+          available: resource.available,
+          inUse: resource.inUse
+        };
+        return acc;
+      }, {})
+    );
+  }
+
+  async function saveResource(resource) {
+    const draft = drafts[resource.key];
+
+    if (!draft) {
+      return;
+    }
+
+    const available = Math.max(
+      0,
+      Number(draft.available) || 0
+    );
+    const inUse = Math.max(
+      0,
+      Number(draft.inUse) || 0
+    );
+
+    setSavingKey(resource.key);
+    setSavedKey(null);
+
+    const updated = await updateResource(
+      resource.key,
+      { available, inUse }
+    );
+
+    setSavingKey(null);
+
+    if (!updated) {
+      return;
+    }
+
+    setSavedKey(resource.key);
+
+    addAlert({
+      type: "success",
+      title: "Resource Inventory Updated",
+      message: `${resource.label}: ${available} available, ${inUse} in use.`
+    });
+
+    window.setTimeout(() => {
+      setSavedKey((current) =>
+        current === resource.key ? null : current
+      );
+    }, 1800);
+  }
+
+  return (
+    <PageFrame
+      eyebrow="RESOURCE OPERATIONS"
+      title="Resource Management"
+      subtitle="Update live inventory and watch operational changes propagate across MEDFLOW."
+      action={
+        <div className="command-live">
+          <span />
+          Live inventory
+        </div>
+      }
+    >
+      <section className="resource-management-banner">
+        <div>
+          <div className="eyebrow">
+            CONTROL PANEL
+          </div>
+
+          <h2>Hospital resource inventory</h2>
+
+          <p>
+            Changes are saved to Supabase and synchronized
+            in real time across open MEDFLOW sessions.
+          </p>
+        </div>
+
+        <button
+          className="secondary-button compact"
+          onClick={() => syncDrafts(resources)}
+        >
+          Reset edits
+        </button>
+      </section>
+
+      <section className="resource-management-grid">
+        {resources.map((resource) => {
+          const draft =
+            drafts[resource.key] || {
+              available: resource.available,
+              inUse: resource.inUse
+            };
+
+          const changed =
+            Number(draft.available) !== resource.available ||
+            Number(draft.inUse) !== resource.inUse;
+
+          return (
+            <article
+              className="resource-management-card"
+              key={resource.key}
+            >
+              <div className="resource-management-top">
+                <div>
+                  <span className="eyebrow">
+                    INVENTORY
+                  </span>
+                  <h2>{resource.label}</h2>
+                </div>
+
+                <span
+                  className={
+                    resource.status === "Low"
+                      ? "status-pill critical"
+                      : "status-pill stable"
+                  }
+                >
+                  {resource.status}
+                </span>
+              </div>
+
+              <div className="resource-live-number">
+                <strong>{resource.available}</strong>
+                <span>available now</span>
+              </div>
+
+              <div className="resource-input-grid">
+                <label>
+                  Available
+                  <input
+                    type="number"
+                    min="0"
+                    value={draft.available}
+                    onChange={(event) =>
+                      setDrafts((current) => ({
+                        ...current,
+                        [resource.key]: {
+                          ...current[resource.key],
+                          available: event.target.value
+                        }
+                      }))
+                    }
+                  />
+                </label>
+
+                <label>
+                  In use
+                  <input
+                    type="number"
+                    min="0"
+                    value={draft.inUse}
+                    onChange={(event) =>
+                      setDrafts((current) => ({
+                        ...current,
+                        [resource.key]: {
+                          ...current[resource.key],
+                          inUse: event.target.value
+                        }
+                      }))
+                    }
+                  />
+                </label>
+              </div>
+
+              <div className="resource-management-footer">
+                <small>{resource.detail}</small>
+
+                <button
+                  className={
+                    changed
+                      ? "primary-button compact"
+                      : "secondary-button compact"
+                  }
+                  onClick={() => saveResource(resource)}
+                  disabled={savingKey === resource.key || !changed}
+                >
+                  {savingKey === resource.key
+                    ? "Saving..."
+                    : savedKey === resource.key
+                    ? "Saved ✓"
+                    : changed
+                    ? "Save changes"
+                    : "Up to date"}
+                </button>
+              </div>
+            </article>
+          );
+        })}
+      </section>
+    </PageFrame>
+  );
+}
+
+/* =========================================================
    SURGE MODE
    ========================================================= */
 
@@ -1930,6 +2155,11 @@ function AppRouter() {
         <Route
           path="/resource-matching"
           element={<ResourceMatching />}
+        />
+
+        <Route
+          path="/resource-management"
+          element={<ResourceManagement />}
         />
 
         <Route
