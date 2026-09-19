@@ -359,16 +359,9 @@ function Dashboard() {
       title="Hospital Dashboard"
       subtitle="Real-time resource coordination across the hospital."
       action={
-        <div
-          className={
-            "heading-status " +
-            (surgeActive ? "incident-heading-status" : "")
-          }
-        >
+        <div className="heading-status">
           <span />
-          {surgeActive
-            ? "Surge response active"
-            : "System operational"}
+          System operational
         </div>
       }
     >
