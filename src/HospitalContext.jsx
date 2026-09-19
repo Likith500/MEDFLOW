@@ -253,6 +253,48 @@ export function HospitalProvider({ children }) {
     return data;
   }
 
+
+  async function updateResource(resourceKey, changes) {
+    const dbChanges = {
+      available: Number(changes.available),
+      in_use: Number(changes.inUse)
+    };
+
+    const { data, error } = await supabase
+      .from("hospital_resources")
+      .update(dbChanges)
+      .eq("resource_key", resourceKey)
+      .select()
+      .single();
+
+    if (error) {
+      console.error(
+        "Could not update hospital resource:",
+        error
+      );
+      return null;
+    }
+
+    const updatedResource = {
+      key: data.resource_key,
+      label: data.label,
+      available: data.available,
+      inUse: data.in_use,
+      status: data.status,
+      detail: data.detail
+    };
+
+    setResources((current) =>
+      current.map((resource) =>
+        resource.key === resourceKey
+          ? updatedResource
+          : resource
+      )
+    );
+
+    return updatedResource;
+  }
+
   async function setAlertsAndPersist(nextAlerts) {
     setAlerts(nextAlerts);
 
@@ -471,6 +513,7 @@ export function HospitalProvider({ children }) {
     addAlert,
     departments,
     resources,
+    updateResource,
     loading
   };
 
