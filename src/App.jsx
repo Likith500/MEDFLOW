@@ -295,13 +295,29 @@ function PageFrame({
    ========================================================= */
 
 function Dashboard() {
-  const { emergencyRequests, departments } = useHospital();
+  const { emergencyRequests, departments, resources } = useHospital();
 
   const openRequests = emergencyRequests.filter(
     (request) => request.status === "Open"
   );
 
   const visibleDepartments = departments.slice(0, 4);
+
+  const availableBeds = resources.find(
+    (resource) => resource.key === "available_beds"
+  );
+  const icuBeds = resources.find(
+    (resource) => resource.key === "icu_beds"
+  );
+  const ventilators = resources.find(
+    (resource) => resource.key === "ventilators"
+  );
+  const ambulances = resources.find(
+    (resource) => resource.key === "ambulances"
+  );
+  const bloodBank = resources.find(
+    (resource) => resource.key === "blood_bank"
+  );
 
   return (
     <PageFrame
@@ -323,7 +339,7 @@ function Dashboard() {
 
           <div className="metric-content">
             <span>Available Beds</span>
-            <strong>42</strong>
+            <strong>{availableBeds?.available ?? 0}</strong>
             <small>Across all departments</small>
           </div>
 
@@ -337,7 +353,7 @@ function Dashboard() {
 
           <div className="metric-content">
             <span>ICU Beds</span>
-            <strong>8</strong>
+            <strong>{icuBeds?.available ?? 0}</strong>
             <small>Currently available</small>
           </div>
 
@@ -351,8 +367,8 @@ function Dashboard() {
 
           <div className="metric-content">
             <span>Ventilators</span>
-            <strong>17</strong>
-            <small>5 currently in use</small>
+            <strong>{ventilators?.available ?? 0}</strong>
+            <small>{ventilators?.detail ?? "Currently tracked"}</small>
           </div>
 
           <span className="metric-arrow">→</span>
@@ -454,7 +470,7 @@ function Dashboard() {
 
               <div>
                 <small>Blood Bank</small>
-                <strong>Low</strong>
+                <strong>{bloodBank?.status ?? "Unknown"}</strong>
               </div>
             </div>
 
@@ -463,7 +479,7 @@ function Dashboard() {
 
               <div>
                 <small>Ventilators</small>
-                <strong>Normal</strong>
+                <strong>{ventilators?.status ?? "Unknown"}</strong>
               </div>
             </div>
 
@@ -472,7 +488,7 @@ function Dashboard() {
 
               <div>
                 <small>Ambulances</small>
-                <strong>4 available</strong>
+                <strong>{ambulances?.available ?? 0} available</strong>
               </div>
             </div>
 
@@ -1620,7 +1636,8 @@ function CommandCenter() {
     alerts,
     surgeActive,
     setSurgeActive,
-    addAlert
+    addAlert,
+    resources
   } = useHospital();
 
   const openRequests = emergencyRequests.filter(
@@ -1630,6 +1647,16 @@ function CommandCenter() {
   const unreadAlerts = alerts.filter(
     (alert) => alert.unread
   ).length;
+
+  const availableBeds = resources.find(
+    (resource) => resource.key === "available_beds"
+  );
+  const icuBeds = resources.find(
+    (resource) => resource.key === "icu_beds"
+  );
+  const ventilators = resources.find(
+    (resource) => resource.key === "ventilators"
+  );
 
   function runAction(action) {
     if (action === "surge") {
@@ -1668,20 +1695,20 @@ function CommandCenter() {
       <section className="command-metrics">
         <div className="command-metric">
           <span>Available Beds</span>
-          <strong>42</strong>
+          <strong>{availableBeds?.available ?? 0}</strong>
           <small>Across all departments</small>
         </div>
 
         <div className="command-metric">
           <span>ICU Beds</span>
-          <strong>8</strong>
+          <strong>{icuBeds?.available ?? 0}</strong>
           <small>Currently available</small>
         </div>
 
         <div className="command-metric">
           <span>Ventilators</span>
-          <strong>17</strong>
-          <small>5 currently in use</small>
+          <strong>{ventilators?.available ?? 0}</strong>
+          <small>{ventilators?.detail ?? "Currently tracked"}</small>
         </div>
 
         <div className="command-metric">
