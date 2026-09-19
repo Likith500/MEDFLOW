@@ -18,86 +18,74 @@ import { useHospital } from "./HospitalContext";
 function MedflowLogo({ large = false }) {
   return (
     <svg
-      className={"medflow-logo " + (large ? "large" : "")}
+      className={`medflow-logo ${large ? "large" : ""}`}
       viewBox="0 0 64 64"
       aria-label="MEDFLOW"
-      role="img"
     >
-      <defs>
-        <linearGradient
-          id="medflowBlue"
-          x1="12"
-          y1="8"
-          x2="52"
-          y2="56"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop offset="0" stopColor="#38a9ff" />
-          <stop offset="1" stopColor="#1469d7" />
-        </linearGradient>
-
-        <linearGradient
-          id="medflowTeal"
-          x1="14"
-          y1="50"
-          x2="50"
-          y2="18"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop offset="0" stopColor="#16b99e" />
-          <stop offset="1" stopColor="#1b8fdc" />
-        </linearGradient>
-      </defs>
-
-      <rect
-        x="8"
-        y="8"
-        width="48"
-        height="48"
-        rx="15"
-        fill="url(#medflowBlue)"
-      />
-
+      {/* BLUE FLOW BAR */}
       <path
-        d="M25 14
-           V25
-           H14
-           V39
-           H25
-           V50
-           H39
-           V39
-           H50
-           V25
-           H39
-           V14
+        d="M11 18
+           C11 13 15 10 20 10
+           H29
+           V20
+           H21
+           C19 20 18 21 18 23
+           V27
+           H29
+           V35
+           H20
+           C15 35 11 31 11 26
            Z"
-        fill="white"
-        opacity="0.98"
+        fill="#238BE0"
       />
 
+      {/* TEAL FLOW BAR */}
       <path
-        d="M12 34
-           C20 34 23 34 27 30
-           L31 39
-           L35 23
-           L39 33
-           C42 31 45 30 52 30"
+        d="M53 46
+           C53 51 49 54 44 54
+           H35
+           V44
+           H43
+           C45 44 46 43 46 41
+           V37
+           H35
+           V29
+           H44
+           C49 29 53 33 53 38
+           Z"
+        fill="#19B39D"
+      />
+
+      {/* CENTRAL MEDICAL FLOW CONNECTION */}
+      <path
+        d="M20 31
+           C27 31 30 20 38 20
+           C43 20 46 24 46 29"
         fill="none"
-        stroke="url(#medflowTeal)"
-        strokeWidth="3.4"
+        stroke="#238BE0"
+        strokeWidth="8"
         strokeLinecap="round"
-        strokeLinejoin="round"
       />
 
       <path
-        d="M16 51
-           C25 54 39 52 48 45"
+        d="M44 33
+           C37 33 34 44 26 44
+           C21 44 18 40 18 35"
+        fill="none"
+        stroke="#19B39D"
+        strokeWidth="8"
+        strokeLinecap="round"
+      />
+
+      {/* WHITE CUT THROUGH THE CENTER */}
+      <path
+        d="M26 32
+           C29 32 31 28 34 27
+           C37 26 39 28 40 31"
         fill="none"
         stroke="white"
-        strokeWidth="2"
+        strokeWidth="4"
         strokeLinecap="round"
-        opacity="0.38"
       />
     </svg>
   );
