@@ -21,70 +21,53 @@ function MedflowLogo({ large = false }) {
       className={`medflow-logo ${large ? "large" : ""}`}
       viewBox="0 0 64 64"
       aria-label="MEDFLOW"
+      role="img"
     >
-      {/* BLUE FLOW BAR */}
       <path
-        d="M11 18
-           C11 13 15 10 20 10
-           H29
-           V20
-           H21
-           C19 20 18 21 18 23
-           V27
-           H29
-           V35
+        d="M20 7
+           H32
+           C36.4 7 40 10.6 40 15
+           V23
+           C40 25.8 37.8 28 35 28
+           H31
+           C28.2 28 26 30.2 26 33
+           V39
+           H15
+           C10.6 39 7 35.4 7 31
+           V23
+           C7 18.6 10.6 15 15 15
            H20
-           C15 35 11 31 11 26
            Z"
         fill="#238BE0"
       />
 
-      {/* TEAL FLOW BAR */}
       <path
-        d="M53 46
-           C53 51 49 54 44 54
-           H35
-           V44
-           H43
-           C45 44 46 43 46 41
-           V37
-           H35
-           V29
+        d="M44 25
+           H49
+           C53.4 25 57 28.6 57 33
+           V41
+           C57 45.4 53.4 49 49 49
            H44
-           C49 29 53 33 53 38
+           V56
+           H32
+           C27.6 56 24 52.4 24 48
+           V41
+           C24 38.2 26.2 36 29 36
+           H33
+           C35.8 36 38 33.8 38 31
+           V25
            Z"
         fill="#19B39D"
       />
 
-      {/* CENTRAL MEDICAL FLOW CONNECTION */}
       <path
-        d="M20 31
-           C27 31 30 20 38 20
-           C43 20 46 24 46 29"
-        fill="none"
-        stroke="#238BE0"
-        strokeWidth="8"
-        strokeLinecap="round"
-      />
-
-      <path
-        d="M44 33
-           C37 33 34 44 26 44
-           C21 44 18 40 18 35"
-        fill="none"
-        stroke="#19B39D"
-        strokeWidth="8"
-        strokeLinecap="round"
-      />
-
-      {/* WHITE CUT THROUGH THE CENTER */}
-      <path
-        d="M26 32
-           C29 32 31 28 34 27
-           C37 26 39 28 40 31"
+        d="M13 37
+           C22 37 25 34 28 29
+           C31 24 34 20 41 20
+           C45 20 49 22 51 25"
         fill="none"
         stroke="white"
-        strokeWidth="4"
+        strokeWidth="7"
         strokeLinecap="round"
       />
     </svg>
@@ -93,7 +76,7 @@ function MedflowLogo({ large = false }) {
 
 /* =========================================================
    SHARED SIDEBAR
-   ========================================================= */
+   =========================================================
 
 function Sidebar() {
   const { emergencyRequests, alerts, surgeActive } = useHospital();
