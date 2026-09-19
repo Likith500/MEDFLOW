@@ -22,21 +22,69 @@ function MedflowLogo({ large = false }) {
       viewBox="0 0 64 64"
       aria-label="MEDFLOW"
     >
+      {/* BLUE FLOW BAR */}
       <path
-        className="logo-blue"
-        d="M12 30a9 9 0 0 1 9-9h7v-8a9 9 0 0 1 9-9h8v18a9 9 0 0 1-9 9h-8v9h-8a8 8 0 0 1-8-8V30Z"
+        d="M11 18
+           C11 13 15 10 20 10
+           H29
+           V20
+           H21
+           C19 20 18 21 18 23
+           V27
+           H29
+           V35
+           H20
+           C15 35 11 31 11 26
+           Z"
+        fill="#238BE0"
       />
 
+      {/* TEAL FLOW BAR */}
       <path
-        className="logo-teal"
-        d="M52 34a9 9 0 0 1-9 9h-7v8a9 9 0 0 1-9 9h-8V42a9 9 0 0 1 9-9h8v-9h8a8 8 0 0 1 8 8v2Z"
+        d="M53 46
+           C53 51 49 54 44 54
+           H35
+           V44
+           H43
+           C45 44 46 43 46 41
+           V37
+           H35
+           V29
+           H44
+           C49 29 53 33 53 38
+           Z"
+        fill="#19B39D"
       />
 
+      {/* CENTRAL MEDICAL FLOW CONNECTION */}
       <path
-        d="M18 39c8.5 0 12.3-13 21.8-13"
+        d="M20 31
+           C27 31 30 20 38 20
+           C43 20 46 24 46 29"
         fill="none"
-        stroke="#ffffff"
-        strokeWidth="5"
+        stroke="#238BE0"
+        strokeWidth="8"
+        strokeLinecap="round"
+      />
+
+      <path
+        d="M44 33
+           C37 33 34 44 26 44
+           C21 44 18 40 18 35"
+        fill="none"
+        stroke="#19B39D"
+        strokeWidth="8"
+        strokeLinecap="round"
+      />
+
+      {/* WHITE CUT THROUGH THE CENTER */}
+      <path
+        d="M26 32
+           C29 32 31 28 34 27
+           C37 26 39 28 40 31"
+        fill="none"
+        stroke="white"
+        strokeWidth="4"
         strokeLinecap="round"
       />
     </svg>
