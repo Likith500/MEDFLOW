@@ -380,6 +380,26 @@ function Dashboard() {
         </div>
 
         <div className="metric-card">
+          <div className="metric-icon">
+            +
+          </div>
+
+          <div className="metric-content">
+            <span>Blood Bank</span>
+            <strong>{bloodBank?.available ?? 0}</strong>
+            <small>{bloodBank?.status ?? "Unknown"} inventory</small>
+          </div>
+
+          <Link
+            to="/resource-management"
+            className="metric-arrow"
+            aria-label="Manage Blood Bank"
+          >
+            →
+          </Link>
+        </div>
+
+        <div className="metric-card">
           <div className="metric-icon teal">
             !
           </div>
