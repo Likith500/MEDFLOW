@@ -28,6 +28,15 @@ const initialEmergencyRequests = [
   }
 ];
 
+const initialDepartments = [
+  { id: 1, name: "Emergency", short: "ER", status: "Critical", capacityTotal: 25, capacityOccupied: 23, patients: 37, capacityUnit: "beds" },
+  { id: 2, name: "ICU", short: "ICU", status: "High", capacityTotal: 20, capacityOccupied: 16, patients: 16, capacityUnit: "beds" },
+  { id: 3, name: "General Ward", short: "GW", status: "Stable", capacityTotal: 80, capacityOccupied: 34, patients: 34, capacityUnit: "beds" },
+  { id: 4, name: "Surgery", short: "SU", status: "Moderate", capacityTotal: 30, capacityOccupied: 18, patients: 18, capacityUnit: "beds" },
+  { id: 5, name: "Radiology", short: "RA", status: "Stable", capacityTotal: 12, capacityOccupied: 5, patients: 9, capacityUnit: "rooms" },
+  { id: 6, name: "Pediatrics", short: "PD", status: "Stable", capacityTotal: 24, capacityOccupied: 11, patients: 11, capacityUnit: "beds" }
+];
+
 const initialAlerts = [
   {
     id: 1,
@@ -55,6 +64,7 @@ export function HospitalProvider({ children }) {
     initialEmergencyRequests
   );
   const [alerts, setAlerts] = useState(initialAlerts);
+  const [departments, setDepartments] = useState(initialDepartments);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -64,7 +74,8 @@ export function HospitalProvider({ children }) {
       try {
         const [
           emergencyRequestsResult,
-          alertsResult
+          alertsResult,
+          departmentsResult
         ] = await Promise.all([
           supabase
             .from("emergency_requests")
@@ -73,7 +84,11 @@ export function HospitalProvider({ children }) {
           supabase
             .from("alerts")
             .select("*")
-            .order("created_at", { ascending: false })
+            .order("created_at", { ascending: false }),
+          supabase
+            .from("departments")
+            .select("*")
+            .order("id", { ascending: true })
         ]);
 
         if (emergencyRequestsResult.error) {
@@ -84,10 +99,27 @@ export function HospitalProvider({ children }) {
           throw alertsResult.error;
         }
 
+        if (departmentsResult.error) {
+          throw departmentsResult.error;
+        }
+
         setEmergencyRequests(
           emergencyRequestsResult.data || []
         );
         setAlerts(alertsResult.data || []);
+
+        setDepartments(
+          (departmentsResult.data || []).map((department) => ({
+            id: department.id,
+            name: department.name,
+            short: department.short_code,
+            status: department.status,
+            capacityTotal: department.capacity_total,
+            capacityOccupied: department.capacity_occupied,
+            patients: department.active_patients,
+            capacityUnit: department.capacity_unit
+          }))
+        );
 
         console.log("MEDFLOW connected to Supabase.");
       } catch (error) {
@@ -217,6 +249,7 @@ export function HospitalProvider({ children }) {
     alerts,
     setAlerts: setAlertsAndPersist,
     addAlert,
+    departments,
     loading
   };
 
