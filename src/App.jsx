@@ -2,6 +2,8 @@ import "./App.css";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import Departments from "./pages/Departments";
 import EmergencyRequests from "./pages/EmergencyRequests";
+import ResourceMatching from "./pages/ResourceMatching";
+import SurgeMode from "./pages/SurgeMode";
 
 function App() {
   return (
@@ -23,7 +25,12 @@ function App() {
 
   <Link to="/emergency-requests">Emergency Requests</Link>
 
-  <button>Resource Matching</button>
+  <Link to="/resource-matching">
+  Resource Matching
+</Link>
+<Link to="/surge-mode">
+  🚨 Surge Mode
+</Link>
 
   <button>Analytics</button>
 </nav>
@@ -226,6 +233,14 @@ function AppRouter() {
         <Route
   path="/emergency-requests"
   element={<EmergencyRequests />}
+/>
+<Route
+  path="/resource-matching"
+  element={<ResourceMatching />}
+/>
+<Route
+  path="/surge-mode"
+  element={<SurgeMode />}
 />
 
       </Routes>
