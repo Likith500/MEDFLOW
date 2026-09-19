@@ -194,7 +194,7 @@ on conflict (resource_key) do update set
 
 alter table public.hospital_resources enable row level security;
 
-grant select on public.hospital_resources to anon;
+grant select, update on public.hospital_resources to anon;
 
 drop policy if exists "Demo users can read hospital resources"
   on public.hospital_resources;
@@ -248,3 +248,16 @@ begin
     alter publication supabase_realtime add table public.hospital_resources;
   end if;
 end $$;
+
+
+drop policy if exists "Demo users can update hospital resources"
+  on public.hospital_resources;
+create policy "Demo users can update hospital resources"
+  on public.hospital_resources
+  for update
+  to anon
+  using (true)
+  with check (
+    available >= 0
+    and in_use >= 0
+  );
