@@ -210,19 +210,162 @@ function Sidebar() {
    ========================================================= */
 
 function Topbar() {
-  const { surgeActive } = useHospital();
+  const {
+    surgeActive,
+    emergencyRequests,
+    departments,
+    resources,
+    alerts
+  } = useHospital();
+
+  const [search, setSearch] = useState("");
+  const [focused, setFocused] = useState(false);
+
+  const query = search.trim().toLowerCase();
+
+  const results = query
+    ? [
+        ...departments
+          .filter((department) =>
+            [department.name, department.status]
+              .join(" ")
+              .toLowerCase()
+              .includes(query)
+          )
+          .slice(0, 3)
+          .map((department) => ({
+            id: `department-${department.id}`,
+            type: "Department",
+            title: department.name,
+            detail: `${department.status} • ${department.capacityOccupied}/${department.capacityTotal} ${department.capacityUnit}`,
+            to: "/departments"
+          })),
+
+        ...resources
+          .filter((resource) =>
+            [resource.label, resource.status, resource.detail]
+              .join(" ")
+              .toLowerCase()
+              .includes(query)
+          )
+          .slice(0, 3)
+          .map((resource) => ({
+            id: `resource-${resource.key}`,
+            type: "Resource",
+            title: resource.label,
+            detail: `${resource.available} available • ${resource.inUse} in use`,
+            to: "/resource-management"
+          })),
+
+        ...emergencyRequests
+          .filter((request) =>
+            [
+              request.resource,
+              request.department,
+              request.urgency,
+              request.status
+            ]
+              .join(" ")
+              .toLowerCase()
+              .includes(query)
+          )
+          .slice(0, 3)
+          .map((request) => ({
+            id: `request-${request.id}`,
+            type: "Request",
+            title: `${request.quantity} × ${request.resource}`,
+            detail: `${request.department} • ${request.urgency} • ${request.status}`,
+            to: "/emergency-requests"
+          })),
+
+        ...alerts
+          .filter((alert) =>
+            [alert.title, alert.message, alert.type]
+              .join(" ")
+              .toLowerCase()
+              .includes(query)
+          )
+          .slice(0, 2)
+          .map((alert) => ({
+            id: `alert-${alert.id}`,
+            type: "Alert",
+            title: alert.title,
+            detail: alert.message,
+            to: "/alerts"
+          }))
+      ].slice(0, 7)
+    : [];
+
+  function closeSearch() {
+    setSearch("");
+    setFocused(false);
+  }
 
   return (
     <header
       className={"topbar " + (surgeActive ? "surge-topbar" : "")}
     >
-      <div className="search-box">
-        <span>⌕</span>
-        <input
-          type="text"
-          placeholder="Search departments, resources, or requests..."
-          aria-label="Search"
-        />
+      <div className="search-area">
+        <div
+          className={
+            "search-box " +
+            (focused ? "search-box-focused" : "")
+          }
+        >
+          <span>⌕</span>
+          <input
+            type="text"
+            placeholder="Search departments, resources, or requests..."
+            aria-label="Search departments, resources, requests and alerts"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            onFocus={() => setFocused(true)}
+            onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                closeSearch();
+              }
+            }}
+          />
+        </div>
+
+        {focused && query && (
+          <div className="search-results">
+            {results.length === 0 ? (
+              <div className="search-no-results">
+                <strong>No results found</strong>
+                <span>Try a department, resource, request or alert.</span>
+              </div>
+            ) : (
+              results.map((result) => (
+                <Link
+                  key={result.id}
+                  to={result.to}
+                  className="search-result"
+                  onClick={closeSearch}
+                >
+                  <span className="search-result-type">
+                    {result.type === "Alert"
+                      ? "!"
+                      : result.type === "Request"
+                      ? "↗"
+                      : result.type === "Resource"
+                      ? "▤"
+                      : "⊞"}
+                  </span>
+
+                  <span className="search-result-copy">
+                    <strong>{result.title}</strong>
+                    <small>{result.detail}</small>
+                  </span>
+
+                  <span className="search-result-label">
+                    {result.type}
+                  </span>
+                </Link>
+              ))
+            )}
+          </div>
+        )}
       </div>
 
       <div className="topbar-right">
@@ -253,7 +396,9 @@ function Topbar() {
 
 /* =========================================================
    SHARED PAGE FRAME
-   ========================================================= */
+   =========================================================
+
+/
 
 function PageFrame({
   eyebrow,
